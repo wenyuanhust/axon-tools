@@ -1,14 +1,26 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+#![no_std]
+#![cfg_attr(doc_cfg, feature(doc_cfg))]
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+extern crate alloc;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+mod error;
+mod mpt;
+#[cfg(feature = "proof")]
+mod proof;
+pub mod types;
+
+#[cfg(feature = "proof")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
+pub use proof::verify_proof;
+
+#[cfg(feature = "hash")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "hash")))]
+pub fn keccak_256(data: &[u8]) -> [u8; 32] {
+    use tiny_keccak::Hasher;
+
+    let mut hasher = tiny_keccak::Keccak::v256();
+    hasher.update(data);
+    let mut output = [0u8; 32];
+    hasher.finalize(&mut output);
+    output
 }
