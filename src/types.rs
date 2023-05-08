@@ -1,5 +1,4 @@
 use alloc::vec::Vec;
-use core::cmp::{Ord, Ordering, PartialOrd};
 
 use bytes::Bytes;
 use ethereum_types::{Bloom, H160, H256, H64, U256};
@@ -35,6 +34,7 @@ pub struct AxonBlock {
     pub tx_hashes: Vec<H256>,
 }
 
+#[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
 pub struct Proposal {
@@ -65,6 +65,7 @@ pub struct Proof {
     pub bitmap:     Bytes,
 }
 
+#[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Validator {
     pub bls_pub_key:    Bytes,
@@ -73,18 +74,21 @@ pub struct Validator {
     pub vote_weight:    u32,
 }
 
-impl PartialOrd for Validator {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+#[cfg(feature = "proof")]
+impl core::cmp::PartialOrd for Validator {
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for Validator {
-    fn cmp(&self, other: &Self) -> Ordering {
+#[cfg(feature = "proof")]
+impl core::cmp::Ord for Validator {
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         self.address.cmp(&other.address)
     }
 }
 
+#[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
 pub struct Vote {
