@@ -1,7 +1,17 @@
 [package]
 name = "axon-tools"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
+authors = ["Axon Dev <axon@axonweb3.io>"]
+license = "MIT"
+include = ["src/*", "README.md", "LICENSE"]
+readme = "README.md"
+keywords = ["axon", "tool"]
+categories = ["cryptography"]
+repository = "https://github.com/axonweb3/axon-tools"
+description = """
+Some axon related utilities.
+"""
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
