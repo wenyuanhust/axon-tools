@@ -36,6 +36,7 @@ pub struct AxonBlock {
 
 #[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "hash")))]
 #[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
 pub struct Proposal {
     pub prev_hash:                H256,
@@ -67,6 +68,7 @@ pub struct Proof {
 
 #[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "hash")))]
 pub struct Validator {
     pub bls_pub_key:    Bytes,
     pub address:        H160,
@@ -75,6 +77,7 @@ pub struct Validator {
 }
 
 #[cfg(feature = "proof")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "hash")))]
 impl core::cmp::PartialOrd for Validator {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         Some(self.cmp(other))
@@ -82,6 +85,7 @@ impl core::cmp::PartialOrd for Validator {
 }
 
 #[cfg(feature = "proof")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "hash")))]
 impl core::cmp::Ord for Validator {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         self.address.cmp(&other.address)
@@ -90,6 +94,7 @@ impl core::cmp::Ord for Validator {
 
 #[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "hash")))]
 #[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
 pub struct Vote {
     pub height:     u64,
