@@ -6,7 +6,7 @@ authors = ["Axon Dev <axon@axonweb3.io>"]
 license = "MIT"
 include = ["src/*", "README.md", "LICENSE"]
 readme = "README.md"
-keywords = ["axon", "tool"]
+keywords = ["axon", "tool", "no_std"]
 categories = ["cryptography"]
 repository = "https://github.com/axonweb3/axon-tools"
 description = """
@@ -14,7 +14,6 @@ Some axon related utilities.
 """
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies.bit-vec]
 version = "0.6"
 default_features = false
@@ -47,22 +46,35 @@ optional = true
 version = "0.1"
 optional = true
 
-[dependencies.tiny-keccak]
-version = "2.0"
+[dependencies.keccak-hasher]
+version = "0.16"
 default-features = false
-features = ["keccak"]
+optional = true
+
+[dependencies.serde]
+version = "1.0"
+default_features = false
+optional = true
+features = ["derive"]
+
+[dependencies.trie-db]
+version = "0.27"
+default-features = false
 optional = true
 
 [dev-dependencies]
 cita_trie = "4.0"
+ethereum = "0.14"
 rand = "0.8"
 overlord = "0.4"
 
 [features]
 default = []
 proof = ["blst", "bit-vec", "hash", "impl-rlp"]
-hash = ["tiny-keccak"]
+hash = ["keccak-hasher"]
 impl-rlp = ["rlp", "rlp-derive", "ethereum-types/rlp"]
+impl-serde = ["serde", "ethereum-types/serialize"]
+trie = ["hash", "memory-db", "trie-db"]
 
 [package.metadata.docs.rs]
 all-features = true

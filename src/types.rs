@@ -5,6 +5,7 @@ use ethereum_types::{Bloom, H160, H256, H64, U256};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AxonHeader {
     pub prev_hash:                H256,
     pub proposer:                 H160,
@@ -29,6 +30,7 @@ pub struct AxonHeader {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AxonBlock {
     pub header:    AxonHeader,
     pub tx_hashes: Vec<H256>,
@@ -38,6 +40,7 @@ pub struct AxonBlock {
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
 #[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Proposal {
     pub prev_hash:                H256,
     pub proposer:                 H160,
@@ -58,6 +61,7 @@ pub struct Proposal {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Proof {
     pub number:     u64,
     pub round:      u64,
@@ -69,6 +73,7 @@ pub struct Proof {
 #[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Validator {
     pub bls_pub_key:    Bytes,
     pub address:        H160,
@@ -96,6 +101,7 @@ impl core::cmp::Ord for Validator {
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
 #[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Vote {
     pub height:     u64,
     pub round:      u64,
