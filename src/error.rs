@@ -1,5 +1,6 @@
 use alloc::string::{String, ToString};
 
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub enum Error {
     InvalidProofBlockHash,
