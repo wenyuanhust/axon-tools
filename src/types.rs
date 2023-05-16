@@ -2,10 +2,10 @@ use alloc::vec::Vec;
 
 use bytes::Bytes;
 use ethereum_types::{Bloom, H160, H256, H64, U256};
-#[cfg(feature = "metadata")]
+#[cfg(feature = "abi")]
 use ethers::abi::AbiEncode;
 
-#[cfg(feature = "metadata")]
+#[cfg(feature = "abi")]
 use crate::metadata::abi;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -131,23 +131,23 @@ impl Vote {
 #[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Metadata {
-    pub(crate) version:         MetadataVersion,
-    pub(crate) epoch:           u64,
-    pub(crate) gas_limit:       u64,
-    pub(crate) gas_price:       u64,
-    pub(crate) interval:        u64,
-    pub(crate) verifier_list:   Vec<ValidatorExtend>,
-    pub(crate) propose_ratio:   u64,
-    pub(crate) prevote_ratio:   u64,
-    pub(crate) precommit_ratio: u64,
-    pub(crate) brake_ratio:     u64,
-    pub(crate) tx_num_limit:    u64,
-    pub(crate) max_tx_size:     u64,
+    pub version:         MetadataVersion,
+    pub epoch:           u64,
+    pub gas_limit:       u64,
+    pub gas_price:       u64,
+    pub interval:        u64,
+    pub verifier_list:   Vec<ValidatorExtend>,
+    pub propose_ratio:   u64,
+    pub prevote_ratio:   u64,
+    pub precommit_ratio: u64,
+    pub brake_ratio:     u64,
+    pub tx_num_limit:    u64,
+    pub max_tx_size:     u64,
     #[cfg_attr(feature = "impl-serde", serde(skip_deserializing))]
-    pub(crate) propose_counter: Vec<ProposeCount>,
+    pub propose_counter: Vec<ProposeCount>,
 }
 
-#[cfg(feature = "metadata")]
+#[cfg(feature = "abi")]
 impl Metadata {
     pub fn abi_encode(&self) -> Vec<u8> {
         abi::AppendMetadataCall {
@@ -201,15 +201,15 @@ pub struct NodePubKey {
 #[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CkbRelatedInfo {
-    pub(crate) metadata_type_id:     H256,
-    pub(crate) checkpoint_type_id:   H256,
-    pub(crate) xudt_args:            H256,
-    pub(crate) stake_smt_type_id:    H256,
-    pub(crate) delegate_smt_type_id: H256,
-    pub(crate) reward_smt_type_id:   H256,
+    pub metadata_type_id:     H256,
+    pub checkpoint_type_id:   H256,
+    pub xudt_args:            H256,
+    pub stake_smt_type_id:    H256,
+    pub delegate_smt_type_id: H256,
+    pub reward_smt_type_id:   H256,
 }
 
-#[cfg(feature = "metadata")]
+#[cfg(feature = "abi")]
 impl CkbRelatedInfo {
     pub fn abi_encode(&self) -> Vec<u8> {
         abi::SetCkbRelatedInfoCall {

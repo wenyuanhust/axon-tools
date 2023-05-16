@@ -1,6 +1,6 @@
 [package]
 name = "axon-tools"
-version = "0.0.6"
+version = "0.0.7"
 edition = "2021"
 authors = ["Axon Dev <axon@axonweb3.io>"]
 license = "MIT"
@@ -75,12 +75,12 @@ overlord = "0.4"
 
 [features]
 default = []
+abi = ["metadata", "ethers"]
 proof = ["blst", "bit-vec", "hash", "impl-rlp"]
 hash = ["keccak-hasher"]
 impl-rlp = ["rlp", "rlp-derive", "ethereum-types/rlp"]
 impl-serde = ["serde", "ethereum-types/serialize"]
 metadata = ["hash"]
-trie = ["hash", "memory-db", "trie-db"]
 
 [package.metadata.docs.rs]
 all-features = true

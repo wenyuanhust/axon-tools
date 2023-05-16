@@ -1,3 +1,4 @@
+#[cfg(feature = "abi")]
 pub(crate) mod abi;
 
 use ethereum_types::H256;

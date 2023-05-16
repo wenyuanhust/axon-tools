@@ -25,3 +25,5 @@ pub use hash::keccak_256;
 #[cfg(feature = "metadata")]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
 pub use metadata::{CkbRelatedInfoBuilder, MetadataBuilder};
+
+pub mod consts;
