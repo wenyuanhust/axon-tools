@@ -2,6 +2,11 @@ use alloc::vec::Vec;
 
 use bytes::Bytes;
 use ethereum_types::{Bloom, H160, H256, H64, U256};
+#[cfg(feature = "metadata")]
+use ethers::abi::AbiEncode;
+
+#[cfg(feature = "metadata")]
+use crate::metadata::abi;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
@@ -118,6 +123,99 @@ impl Vote {
             vote_type:  2,
             block_hash: tests::random_bytes(32),
         }
+    }
+}
+
+#[cfg(feature = "metadata")]
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Metadata {
+    pub(crate) version:         MetadataVersion,
+    pub(crate) epoch:           u64,
+    pub(crate) gas_limit:       u64,
+    pub(crate) gas_price:       u64,
+    pub(crate) interval:        u64,
+    pub(crate) verifier_list:   Vec<ValidatorExtend>,
+    pub(crate) propose_ratio:   u64,
+    pub(crate) prevote_ratio:   u64,
+    pub(crate) precommit_ratio: u64,
+    pub(crate) brake_ratio:     u64,
+    pub(crate) tx_num_limit:    u64,
+    pub(crate) max_tx_size:     u64,
+    #[cfg_attr(feature = "impl-serde", serde(skip_deserializing))]
+    pub(crate) propose_counter: Vec<ProposeCount>,
+}
+
+#[cfg(feature = "metadata")]
+impl Metadata {
+    pub fn abi_encode(&self) -> Vec<u8> {
+        abi::AppendMetadataCall {
+            metadata: self.clone().into(),
+        }
+        .encode()
+    }
+}
+
+#[cfg(feature = "metadata")]
+#[derive(Default, Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct MetadataVersion {
+    pub start: u64,
+    pub end:   u64,
+}
+
+#[cfg(feature = "metadata")]
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ProposeCount {
+    pub address: H160,
+    pub count:   u64,
+}
+
+#[cfg(feature = "metadata")]
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ValidatorExtend {
+    pub bls_pub_key:    Bytes,
+    pub pub_key:        Bytes,
+    pub address:        H160,
+    pub propose_weight: u32,
+    pub vote_weight:    u32,
+}
+
+#[cfg(feature = "metadata")]
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct NodePubKey {
+    pub bls_pub_key: Bytes,
+    pub pub_key:     Bytes,
+}
+
+#[cfg(feature = "metadata")]
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CkbRelatedInfo {
+    pub(crate) metadata_type_id:     H256,
+    pub(crate) checkpoint_type_id:   H256,
+    pub(crate) xudt_args:            H256,
+    pub(crate) stake_smt_type_id:    H256,
+    pub(crate) delegate_smt_type_id: H256,
+    pub(crate) reward_smt_type_id:   H256,
+}
+
+#[cfg(feature = "metadata")]
+impl CkbRelatedInfo {
+    pub fn abi_encode(&self) -> Vec<u8> {
+        abi::SetCkbRelatedInfoCall {
+            ckb_related_info: self.clone().into(),
+        }
+        .encode()
     }
 }
 

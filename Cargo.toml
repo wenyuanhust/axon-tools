@@ -1,6 +1,6 @@
 [package]
 name = "axon-tools"
-version = "0.0.5"
+version = "0.0.6"
 edition = "2021"
 authors = ["Axon Dev <axon@axonweb3.io>"]
 license = "MIT"
@@ -31,6 +31,11 @@ default-features = false
 version = "0.14"
 default-features = false
 features = ["serialize"]
+
+[dependencies.ethers]
+version = "2.0"
+default-features = false
+optional = true
 
 [dependencies.memory-db]
 version = "0.32"
@@ -74,6 +79,7 @@ proof = ["blst", "bit-vec", "hash", "impl-rlp"]
 hash = ["keccak-hasher"]
 impl-rlp = ["rlp", "rlp-derive", "ethereum-types/rlp"]
 impl-serde = ["serde", "ethereum-types/serialize"]
+metadata = ["hash"]
 trie = ["hash", "memory-db", "trie-db"]
 
 [package.metadata.docs.rs]
