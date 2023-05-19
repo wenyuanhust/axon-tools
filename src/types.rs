@@ -149,6 +149,7 @@ pub struct Metadata {
 
 #[cfg(feature = "abi")]
 impl Metadata {
+    #[cfg_attr(doc_cfg, doc(cfg(feature = "abi")))]
     pub fn abi_encode(&self) -> Vec<u8> {
         abi::AppendMetadataCall {
             metadata: self.clone().into(),
@@ -211,6 +212,7 @@ pub struct CkbRelatedInfo {
 
 #[cfg(feature = "abi")]
 impl CkbRelatedInfo {
+    #[cfg_attr(doc_cfg, doc(cfg(feature = "abi")))]
     pub fn abi_encode(&self) -> Vec<u8> {
         abi::SetCkbRelatedInfoCall {
             ckb_related_info: self.clone().into(),
