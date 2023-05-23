@@ -1,6 +1,6 @@
 [package]
 name = "axon-tools"
-version = "0.0.8"
+version = "0.0.9"
 edition = "2021"
 authors = ["Axon Dev <axon@axonweb3.io>"]
 license = "MIT"

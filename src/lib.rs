@@ -12,7 +12,6 @@ mod proof;
 pub mod types;
 
 pub use error::Error;
-pub use ethereum_types::{Bloom, H160, H256, U256};
 
 #[cfg(feature = "proof")]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]

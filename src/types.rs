@@ -1,7 +1,7 @@
 use alloc::vec::Vec;
 
 use bytes::Bytes;
-use ethereum_types::{Bloom, H160, H256, H64, U256};
+pub use ethereum_types::{Bloom, H160, H256, H64, U256};
 #[cfg(feature = "abi")]
 use ethers::abi::AbiEncode;
 
@@ -9,7 +9,10 @@ use ethers::abi::AbiEncode;
 use crate::metadata::abi;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
+#[cfg_attr(
+    feature = "impl-rlp",
+    derive(rlp_derive::RlpEncodable, rlp_derive::RlpDecodable)
+)]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AxonHeader {
     pub prev_hash:                H256,
@@ -34,7 +37,10 @@ pub struct AxonHeader {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
+#[cfg_attr(
+    feature = "impl-rlp",
+    derive(rlp_derive::RlpEncodable, rlp_derive::RlpDecodable)
+)]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AxonBlock {
     pub header:    AxonHeader,
@@ -44,7 +50,10 @@ pub struct AxonBlock {
 #[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
-#[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
+#[cfg_attr(
+    feature = "impl-rlp",
+    derive(rlp_derive::RlpEncodable, rlp_derive::RlpDecodable)
+)]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Proposal {
     pub prev_hash:                H256,
@@ -65,7 +74,10 @@ pub struct Proposal {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
+#[cfg_attr(
+    feature = "impl-rlp",
+    derive(rlp_derive::RlpEncodable, rlp_derive::RlpDecodable)
+)]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Proof {
     pub number:     u64,
@@ -105,7 +117,10 @@ impl core::cmp::Ord for Validator {
 #[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
-#[cfg_attr(feature = "impl-rlp", derive(rlp_derive::RlpEncodable))]
+#[cfg_attr(
+    feature = "impl-rlp",
+    derive(rlp_derive::RlpEncodable, rlp_derive::RlpDecodable)
+)]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Vote {
     pub height:     u64,
