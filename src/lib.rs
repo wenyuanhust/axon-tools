@@ -2,6 +2,8 @@
 
 extern crate alloc;
 
+#[cfg(feature = "ckb-light-client")]
+pub mod ckb_light_client;
 mod error;
 #[cfg(feature = "hash")]
 mod hash;

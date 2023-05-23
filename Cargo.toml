@@ -1,6 +1,6 @@
 [package]
 name = "axon-tools"
-version = "0.0.9"
+version = "0.0.10"
 edition = "2021"
 authors = ["Axon Dev <axon@axonweb3.io>"]
 license = "MIT"
@@ -76,6 +76,7 @@ hash = ["tiny-keccak"]
 impl-rlp = ["rlp", "rlp-derive", "ethereum-types/rlp"]
 impl-serde = ["serde", "ethereum-types/serialize"]
 metadata = ["hash"]
+ckb-light-client = ["ethers"]
 
 [package.metadata.docs.rs]
 all-features = true
