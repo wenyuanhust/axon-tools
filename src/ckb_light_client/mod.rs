@@ -13,6 +13,8 @@ pub use light_client_abi::{
     Header, RollbackCall as HeaderRollbackCall, SetStateCall, UpdateCall as HeaderUpdateCall,
 };
 
+use std::prelude::v1::*;
+
 use ethers::abi::AbiEncode;
 
 use crate::ckb_light_client::image_cell_abi::ImageCellContractCalls;

@@ -141,9 +141,7 @@ impl Vote {
     }
 }
 
-#[cfg(feature = "metadata")]
 #[derive(Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Metadata {
     pub version:         MetadataVersion,
@@ -173,27 +171,21 @@ impl Metadata {
     }
 }
 
-#[cfg(feature = "metadata")]
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MetadataVersion {
     pub start: u64,
     pub end:   u64,
 }
 
-#[cfg(feature = "metadata")]
 #[derive(Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ProposeCount {
     pub address: H160,
     pub count:   u64,
 }
 
-#[cfg(feature = "metadata")]
 #[derive(Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ValidatorExtend {
     pub bls_pub_key:    Bytes,
@@ -203,18 +195,14 @@ pub struct ValidatorExtend {
     pub vote_weight:    u32,
 }
 
-#[cfg(feature = "metadata")]
 #[derive(Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct NodePubKey {
     pub bls_pub_key: Bytes,
     pub pub_key:     Bytes,
 }
 
-#[cfg(feature = "metadata")]
 #[derive(Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "metadata")))]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CkbRelatedInfo {
     pub metadata_type_id:     H256,

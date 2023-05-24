@@ -1,5 +1,7 @@
 use alloc::vec::Vec;
 
+use std::cell;
+
 use bit_vec::BitVec;
 use blst::min_pk::{AggregatePublicKey, PublicKey, Signature};
 use blst::BLST_ERROR;

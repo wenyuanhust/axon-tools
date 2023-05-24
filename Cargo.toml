@@ -1,6 +1,6 @@
 [package]
 name = "axon-tools"
-version = "0.0.10"
+version = "0.0.11"
 edition = "2021"
 authors = ["Axon Dev <axon@axonweb3.io>"]
 license = "MIT"
@@ -20,12 +20,16 @@ default_features = false
 optional = true
 
 [dependencies.blst]
+package = "ckb-blst"
 version = "0.3"
 optional = true
 
 [dependencies.bytes]
 version = "1.4"
 default-features = false
+
+[dependencies.cfg-if]
+version = "1.0"
 
 [dependencies.ethereum-types]
 version = "0.14"
@@ -70,13 +74,12 @@ overlord = "0.4"
 
 [features]
 default = []
-abi = ["metadata", "ethers"]
+std = ["abi"]
+abi = ["ethers"]
 proof = ["blst", "bit-vec", "hash", "impl-rlp"]
 hash = ["tiny-keccak"]
 impl-rlp = ["rlp", "rlp-derive", "ethereum-types/rlp"]
 impl-serde = ["serde", "ethereum-types/serialize"]
-metadata = ["hash"]
-ckb-light-client = ["ethers"]
 
 [package.metadata.docs.rs]
 all-features = true
