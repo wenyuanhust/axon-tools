@@ -41,7 +41,7 @@ fmt:
 	cargo +nightly fmt ${VERBOSE} --all
 
 clippy:
-	${CARGO} clippy ${VERBOSE} --all --all-targets --all-features -- \
+	${CARGO} clippy ${VERBOSE} --all --all-features --target=riscv64imac-unknown-none-elf -- \
 		-D warnings -D clippy::clone_on_ref_ptr -D clippy::enum_glob_use
 
 sort:

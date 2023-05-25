@@ -2,11 +2,6 @@ use alloc::vec::Vec;
 
 use bytes::Bytes;
 pub use ethereum_types::{Bloom, H160, H256, H64, U256};
-#[cfg(feature = "abi")]
-use ethers::abi::AbiEncode;
-
-#[cfg(feature = "abi")]
-use crate::metadata::abi;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(
@@ -160,17 +155,6 @@ pub struct Metadata {
     pub propose_counter: Vec<ProposeCount>,
 }
 
-#[cfg(feature = "abi")]
-impl Metadata {
-    #[cfg_attr(doc_cfg, doc(cfg(feature = "abi")))]
-    pub fn abi_encode(&self) -> Vec<u8> {
-        abi::AppendMetadataCall {
-            metadata: self.clone().into(),
-        }
-        .encode()
-    }
-}
-
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MetadataVersion {
@@ -211,17 +195,6 @@ pub struct CkbRelatedInfo {
     pub stake_smt_type_id:    H256,
     pub delegate_smt_type_id: H256,
     pub reward_smt_type_id:   H256,
-}
-
-#[cfg(feature = "abi")]
-impl CkbRelatedInfo {
-    #[cfg_attr(doc_cfg, doc(cfg(feature = "abi")))]
-    pub fn abi_encode(&self) -> Vec<u8> {
-        abi::SetCkbRelatedInfoCall {
-            ckb_related_info: self.clone().into(),
-        }
-        .encode()
-    }
 }
 
 #[cfg(test)]

@@ -3,20 +3,9 @@
 
 extern crate alloc;
 
-cfg_if::cfg_if! {
-    if #[cfg(feature = "std")] {
-        extern crate std;
-
-        pub mod ckb_light_client;
-        mod metadata;
-        pub use metadata::{CkbRelatedInfoBuilder, MetadataBuilder};
-    }
-}
-
 mod error;
 #[cfg(feature = "hash")]
 mod hash;
-
 #[cfg(feature = "proof")]
 mod proof;
 pub mod types;
