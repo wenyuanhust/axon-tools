@@ -2,6 +2,12 @@ use alloc::vec::Vec;
 
 use bytes::Bytes;
 pub use ethereum_types::{Bloom, H160, H256, H64, U256};
+#[cfg(feature = "impl-rlp")]
+use rlp::{Decodable, DecoderError, Encodable, Rlp, RlpStream};
+
+pub const MAX_BLOCK_GAS_LIMIT: u64 = 30_000_000;
+pub const MAX_RPC_GAS_CAP: u64 = 50_000_000;
+pub const BASE_FEE_PER_GAS: u64 = 0x539;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(
@@ -45,10 +51,6 @@ pub struct AxonBlock {
 #[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
-#[cfg_attr(
-    feature = "impl-rlp",
-    derive(rlp_derive::RlpEncodable, rlp_derive::RlpDecodable)
-)]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Proposal {
     pub prev_hash:                H256,
@@ -66,6 +68,46 @@ pub struct Proposal {
     pub chain_id:                 u64,
     pub call_system_script_count: u32,
     pub tx_hashes:                Vec<H256>,
+}
+
+#[cfg(feature = "impl-rlp")]
+impl Encodable for Proposal {
+    fn rlp_append(&self, s: &mut RlpStream) {
+        s.begin_list(10)
+            .append(&self.prev_hash)
+            .append(&self.proposer)
+            .append(&self.prev_state_root)
+            .append(&self.transactions_root)
+            .append(&self.signed_txs_hash)
+            .append(&self.timestamp)
+            .append(&self.number)
+            .append(&self.proof)
+            .append(&self.call_system_script_count)
+            .append_list(&self.tx_hashes);
+    }
+}
+
+#[cfg(feature = "impl-rlp")]
+impl Decodable for Proposal {
+    fn decode(r: &Rlp) -> Result<Self, DecoderError> {
+        Ok(Proposal {
+            prev_hash:                r.val_at(0)?,
+            proposer:                 r.val_at(1)?,
+            prev_state_root:          r.val_at(2)?,
+            transactions_root:        r.val_at(3)?,
+            signed_txs_hash:          r.val_at(4)?,
+            timestamp:                r.val_at(5)?,
+            number:                   r.val_at(6)?,
+            gas_limit:                MAX_BLOCK_GAS_LIMIT.into(),
+            extra_data:               Default::default(),
+            mixed_hash:               None,
+            base_fee_per_gas:         BASE_FEE_PER_GAS.into(),
+            proof:                    r.val_at(7)?,
+            chain_id:                 crate::proof::get_chain_id(),
+            call_system_script_count: r.val_at(8)?,
+            tx_hashes:                r.list_at(9)?,
+        })
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -2,6 +2,8 @@ use alloc::vec::Vec;
 
 use bytes::Bytes;
 pub use ethereum_types::{Bloom, H160, H256, H64, U256};
+#[cfg(feature = "impl-rlp")]
+use rlp::{Encodable, RlpStream};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(
@@ -45,10 +47,6 @@ pub struct AxonBlock {
 #[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
-#[cfg_attr(
-    feature = "impl-rlp",
-    derive(rlp_derive::RlpEncodable, rlp_derive::RlpDecodable)
-)]
 #[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Proposal {
     pub prev_hash:                H256,
@@ -66,6 +64,23 @@ pub struct Proposal {
     pub chain_id:                 u64,
     pub call_system_script_count: u32,
     pub tx_hashes:                Vec<H256>,
+}
+
+#[cfg(feature = "impl-rlp")]
+impl Encodable for Proposal {
+    fn rlp_append(&self, s: &mut RlpStream) {
+        s.begin_list(10)
+            .append(&self.prev_hash)
+            .append(&self.proposer)
+            .append(&self.prev_state_root)
+            .append(&self.transactions_root)
+            .append(&self.signed_txs_hash)
+            .append(&self.timestamp)
+            .append(&self.number)
+            .append(&self.proof)
+            .append(&self.call_system_script_count)
+            .append_list(&self.tx_hashes);
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

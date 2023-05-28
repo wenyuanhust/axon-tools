@@ -1,5 +1,18 @@
+[package]
+name = "axon-tool"
+version = "0.1.0"
+edition = "2021"
+
 [workspace]
 members = [
     "axon-tools",
 	"axon-tools-riscv",
 ]
+
+[dependencies]
+axon-tools = { path = "./axon-tools", features = ["impl-serde", "proof"] }
+
+[dev-dependencies]
+serde = "1.0"
+serde_json = "1.0"
+hex = "0.4"
