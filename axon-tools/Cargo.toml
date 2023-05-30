@@ -6,7 +6,7 @@ authors = ["Axon Dev <axon@axonweb3.io>"]
 license = "MIT"
 include = ["src/*", "README.md", "LICENSE"]
 readme = "README.md"
-keywords = ["axon", "tool", "no_std"]
+keywords = ["axon", "tool"]
 categories = ["cryptography"]
 repository = "https://github.com/axonweb3/axon-tools"
 description = """
@@ -32,6 +32,10 @@ features = ["serde"]
 version = "0.14"
 default-features = false
 features = ["serialize"]
+
+[dependencies.faster-hex]
+version = "0.6"
+optional = true
 
 [dependencies.rlp]
 version = "0.5"
@@ -63,8 +67,9 @@ overlord = "0.4"
 default = []
 proof = ["blst", "bit-vec", "hash", "impl-rlp"]
 hash = ["tiny-keccak"]
+hex = ["faster-hex"]
 impl-rlp = ["rlp", "rlp-derive", "ethereum-types/rlp"]
-impl-serde = ["serde", "ethereum-types/serialize"]
+impl-serde = ["serde", "ethereum-types/serialize", "hex"]
 
 [package.metadata.docs.rs]
 all-features = true

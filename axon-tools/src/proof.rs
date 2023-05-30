@@ -3,6 +3,7 @@ use alloc::vec::Vec;
 use bit_vec::BitVec;
 use blst::min_pk::{AggregatePublicKey, PublicKey, Signature};
 use blst::BLST_ERROR;
+use bytes::Bytes;
 use ethereum_types::H256;
 use rlp::Encodable;
 
@@ -40,21 +41,19 @@ pub fn verify_proof(
         return Err(Error::InvalidProofBlockHash);
     }
 
-    let raw_vote = keccak_256(
-        &Vote {
-            height:     block.header.number,
-            round:      proof.round,
-            vote_type:  2,
-            block_hash: proof.block_hash.0.to_vec().into(),
-        }
-        .rlp_bytes(),
-    );
+    let vote = Vote {
+        height:     proof.number,
+        round:      proof.round,
+        vote_type:  2u8,
+        block_hash: Bytes::from(proof.block_hash.0.to_vec()),
+    };
 
+    let hash_vote = keccak_256(rlp::encode(&vote).as_ref());
     let pks = extract_pks(&proof, validator_list)?;
     let pks = pks.iter().collect::<Vec<_>>();
-    let c_pk = AggregatePublicKey::aggregate(&pks, true)?.to_public_key();
+    let c_pk = PublicKey::from_aggregate(&AggregatePublicKey::aggregate(&pks, true)?);
     let sig = Signature::from_bytes(&proof.signature)?;
-    let res = sig.verify(true, &raw_vote, DST.as_bytes(), &[], &c_pk, true);
+    let res = sig.verify(true, &hash_vote, DST.as_bytes(), &[], &c_pk, true);
 
     if res == BLST_ERROR::BLST_SUCCESS {
         return Ok(());

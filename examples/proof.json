@@ -1,7 +1,7 @@
 {
-  "number": 24232,
-  "round": 0,
-  "block_hash": "0x0e00d9251119a34cae0eaedbd8119947c35c5acdff18d4eb06d137d6f41e75c4",
-  "signature": "0xa75ad67ed6eb764ffe37a7e7a4c7767d12e0194bcfa371e0dcf295a6a1fdc52cf9fd5979ac155cd9baa0a2cda39826c307d04c743cf350cea2d2ad8b4219a04ddec9dbb5294d8c6921760b516ac05cc2fd59fd15a70a69d56656b3c6330ed1c5",
-  "bitmap": "0xe0"
+	"number": "0xa",
+	"round": "0x0",
+	"block_hash": "0xa684433bbad669881603c2e404e972c98fd665b17aa5fd76393737eda38768e1",
+	"signature": "0xacd56cf2e95c03a99447b829fffdfdded64c63dfa53c9d6c2dc87e6667eddbfa790cdb40cca20a32b4bc9ad7f72501640d7935ab16b858f11398acb293826fec042d97a4898669e73eb270eb481e2a52165fd020091936964df82b87deaae533",
+	"bitmap": "0xb0"
 }

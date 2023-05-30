@@ -22,12 +22,13 @@ fn main() {
         .collect::<Vec<_>>();
 
     let previous_state_root =
-        hex::decode("4a2b9bb5cf3fec805e0b376559a639edac7acced05ce5f58ccea49b170c43d10").unwrap();
-    let res = axon_tools::verify_proof(
+        hex::decode("3ae76798c8eaaf3005455c254b7ca499b0de32cf5fdf0d42e967059806d93a37").unwrap();
+
+    assert!(axon_tools::verify_proof(
         block,
         H256::from_slice(&previous_state_root),
         &mut validators,
         proof,
-    );
-    println!("{:?}", res);
+    )
+    .is_ok());
 }
