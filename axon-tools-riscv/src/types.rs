@@ -87,29 +87,6 @@ impl Encodable for Proposal {
     }
 }
 
-#[cfg(feature = "impl-rlp")]
-impl Decodable for Proposal {
-    fn decode(r: &Rlp) -> Result<Self, DecoderError> {
-        Ok(Proposal {
-            prev_hash:                r.val_at(0)?,
-            proposer:                 r.val_at(1)?,
-            prev_state_root:          r.val_at(2)?,
-            transactions_root:        r.val_at(3)?,
-            signed_txs_hash:          r.val_at(4)?,
-            timestamp:                r.val_at(5)?,
-            number:                   r.val_at(6)?,
-            gas_limit:                MAX_BLOCK_GAS_LIMIT.into(),
-            extra_data:               Default::default(),
-            mixed_hash:               None,
-            base_fee_per_gas:         BASE_FEE_PER_GAS.into(),
-            proof:                    r.val_at(7)?,
-            chain_id:                 crate::proof::get_chain_id(),
-            call_system_script_count: r.val_at(8)?,
-            tx_hashes:                r.list_at(9)?,
-        })
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(
     feature = "impl-rlp",
