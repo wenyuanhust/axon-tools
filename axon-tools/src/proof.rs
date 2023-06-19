@@ -8,9 +8,14 @@ use ethereum_types::H256;
 use rlp::Encodable;
 
 use crate::types::{AxonBlock, Proof, Proposal, Validator, Vote};
-use crate::{error::Error, keccak_256};
+use crate::{error::Error, hash::InnerKeccak, keccak_256};
 
 const DST: &str = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RONUL";
+
+pub fn verify_trie_proof(root: H256, key: &[u8], proof: Vec<Vec<u8>>) -> Result<(), Error> {
+    cita_trie::verify_proof(&root.0, key, proof, InnerKeccak::default())?;
+    Ok(())
+}
 
 pub fn verify_proof(
     block: AxonBlock,

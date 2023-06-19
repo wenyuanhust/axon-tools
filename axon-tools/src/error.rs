@@ -1,7 +1,7 @@
 use alloc::string::{String, ToString};
 
 #[allow(dead_code)]
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum Error {
     InvalidProofBlockHash,
     NotEnoughSignatures,
@@ -14,6 +14,10 @@ pub enum Error {
     #[cfg(feature = "proof")]
     #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
     Bls(blst::BLST_ERROR),
+
+    #[cfg(feature = "proof")]
+    #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
+    Trie(cita_trie::TrieError),
 }
 
 #[cfg(feature = "hex")]
@@ -32,6 +36,14 @@ impl From<blst::BLST_ERROR> for Error {
     }
 }
 
+#[cfg(feature = "proof")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
+impl From<cita_trie::TrieError> for Error {
+    fn from(e: cita_trie::TrieError) -> Self {
+        Self::Trie(e)
+    }
+}
+
 impl ToString for Error {
     fn to_string(&self) -> String {
         match self {
@@ -42,6 +54,8 @@ impl ToString for Error {
             Error::Hex(e) => alloc::format!("Hex error: {:?}", e),
             #[cfg(feature = "proof")]
             Error::Bls(e) => alloc::format!("Bls error: {:?}", e),
+            #[cfg(feature = "proof")]
+            Error::Trie(e) => alloc::format!("Trie error: {:?}", e),
         }
     }
 }
