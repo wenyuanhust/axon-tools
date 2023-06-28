@@ -12,6 +12,38 @@ use crate::{error::Error, keccak_256};
 
 const DST: &str = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RONUL";
 
+pub fn verify_proof_by_proposal(
+    proposal: Proposal,
+    validator_list: &mut [Validator],
+    proof: Proof,
+) -> Result<(), Error> {
+    let raw_proposal = proposal.rlp_bytes();
+
+    if keccak_256(&raw_proposal) != proof.block_hash.0 {
+        return Err(Error::InvalidProofBlockHash);
+    }
+
+    let vote = Vote {
+        height:     proof.number,
+        round:      proof.round,
+        vote_type:  2u8,
+        block_hash: Bytes::from(proof.block_hash.0.to_vec()),
+    };
+
+    let hash_vote = keccak_256(rlp::encode(&vote).as_ref());
+    let pks = extract_pks(&proof, validator_list)?;
+    let pks = pks.iter().collect::<Vec<_>>();
+    let c_pk = PublicKey::from_aggregate(&AggregatePublicKey::aggregate(&pks, true)?);
+    let sig = Signature::from_bytes(&proof.signature)?;
+    let res = sig.verify(true, &hash_vote, DST.as_bytes(), &[], &c_pk, true);
+
+    if res == BLST_ERROR::BLST_SUCCESS {
+        return Ok(());
+    }
+
+    Err(res.into())
+}
+
 pub fn verify_proof(
     block: AxonBlock,
     previous_state_root: H256,
