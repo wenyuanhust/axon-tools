@@ -14,8 +14,8 @@ fn main() {
         .verifier_list
         .iter()
         .map(|v| Validator {
-            bls_pub_key:    v.bls_pub_key.clone(),
-            address:        v.address,
+            pub_key:        v.pub_key.clone().into(),
+            // address:        v.address,
             propose_weight: v.propose_weight,
             vote_weight:    v.vote_weight,
         })

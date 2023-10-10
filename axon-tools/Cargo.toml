@@ -38,7 +38,7 @@ default-features = false
 features = ["serialize"]
 
 [dependencies.faster-hex]
-version = "0.6"
+version = "0.8"
 optional = true
 
 [dependencies.rlp]
@@ -65,6 +65,9 @@ features = ["keccak"]
 ethereum = "0.14"
 rand = "0.8"
 overlord = "0.4"
+
+[dependencies]
+derive_more = "0.99"
 
 [features]
 default = []

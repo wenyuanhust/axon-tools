@@ -33,7 +33,7 @@ pub fn verify_proof(
         number:                   block.header.number,
         gas_limit:                block.header.gas_limit,
         extra_data:               block.header.extra_data,
-        mixed_hash:               block.header.mixed_hash,
+        // mixed_hash:               block.header.mixed_hash,
         base_fee_per_gas:         block.header.base_fee_per_gas,
         proof:                    block.header.proof,
         chain_id:                 block.header.chain_id,
@@ -52,12 +52,14 @@ pub fn verify_proof(
         vote_type:  2u8,
         block_hash: Bytes::from(proof.block_hash.0.to_vec()),
     };
+    println!("-------message: {:?}", rlp::encode(&vote).to_vec());
 
     let hash_vote = keccak_256(rlp::encode(&vote).as_ref());
     let pks = extract_pks(&proof, validator_list)?;
     let pks = pks.iter().collect::<Vec<_>>();
     let c_pk = PublicKey::from_aggregate(&AggregatePublicKey::aggregate(&pks, true)?);
     let sig = Signature::from_bytes(&proof.signature)?;
+    println!("--------signature: {:?}", proof.signature.to_vec());
     let res = sig.verify(true, &hash_vote, DST.as_bytes(), &[], &c_pk, true);
 
     if res == BLST_ERROR::BLST_SUCCESS {
@@ -68,7 +70,7 @@ pub fn verify_proof(
 }
 
 fn extract_pks(proof: &Proof, validator_list: &mut [Validator]) -> Result<Vec<PublicKey>, Error> {
-    validator_list.sort();
+    // validator_list.sort();
 
     let bit_map = BitVec::from_bytes(&proof.bitmap);
     let mut pks = Vec::with_capacity(validator_list.len());
@@ -79,7 +81,8 @@ fn extract_pks(proof: &Proof, validator_list: &mut [Validator]) -> Result<Vec<Pu
             continue;
         }
 
-        pks.push(PublicKey::from_bytes(&v.bls_pub_key)?);
+        pks.push(PublicKey::from_bytes(&v.pub_key)?);
+        println!("------active key: {:?}", v.pub_key.to_vec());
         count += 1;
     }
 
