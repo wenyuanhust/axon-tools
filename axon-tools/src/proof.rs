@@ -12,9 +12,14 @@ use crate::{error::Error, hash::InnerKeccak, keccak_256};
 
 const DST: &str = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RONUL";
 
-pub fn verify_trie_proof(root: H256, key: &[u8], proof: Vec<Vec<u8>>) -> Result<(), Error> {
-    cita_trie::verify_proof(&root.0, key, proof, InnerKeccak::default())?;
-    Ok(())
+pub fn verify_trie_proof(
+    root: H256,
+    key: &[u8],
+    proof: Vec<Vec<u8>>,
+) -> Result<Option<Vec<u8>>, Error> {
+    let value = cita_trie::verify_proof(&root.0, key, proof, InnerKeccak::default())?;
+    println!("key: {:?}, value: {:?}", key, value);
+    Ok(value)
 }
 
 pub fn verify_proof(
@@ -24,6 +29,7 @@ pub fn verify_proof(
     proof: Proof,
 ) -> Result<(), Error> {
     let raw_proposal = Proposal {
+        version:                  block.header.version,
         prev_hash:                block.header.prev_hash,
         proposer:                 block.header.proposer,
         prev_state_root:          previous_state_root,
@@ -33,7 +39,6 @@ pub fn verify_proof(
         number:                   block.header.number,
         gas_limit:                block.header.gas_limit,
         extra_data:               block.header.extra_data,
-        // mixed_hash:               block.header.mixed_hash,
         base_fee_per_gas:         block.header.base_fee_per_gas,
         proof:                    block.header.proof,
         chain_id:                 block.header.chain_id,
@@ -70,7 +75,7 @@ pub fn verify_proof(
 }
 
 fn extract_pks(proof: &Proof, validator_list: &mut [Validator]) -> Result<Vec<PublicKey>, Error> {
-    // validator_list.sort();
+    validator_list.sort();
 
     let bit_map = BitVec::from_bytes(&proof.bitmap);
     let mut pks = Vec::with_capacity(validator_list.len());

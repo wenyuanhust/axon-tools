@@ -2,6 +2,7 @@ use std::cmp::Ordering;
 
 use alloc::vec::Vec;
 use bytes::{Bytes, BytesMut};
+use rlp::{Decodable, Rlp, DecoderError};
 use core::str::FromStr;
 use derive_more::{Display, From};
 use faster_hex::withpfx_lowercase;
@@ -195,20 +196,16 @@ impl TryFrom<u8> for BlockVersion {
 
 impl Encodable for BlockVersion {
     fn rlp_append(&self, s: &mut RlpStream) {
-        match *self {
-            BlockVersion::V0 => s.append(&0u8),
-            // Add other variants here...
-        };
+        let ver: u8 = (*self).into();
+        s.begin_list(1).append(&ver);
     }
 }
 
-impl rlp::Decodable for BlockVersion {
-    fn decode(rlp: &rlp::Rlp) -> Result<Self, rlp::DecoderError> {
-        match rlp.as_val::<u8>()? {
-            0 => Ok(BlockVersion::V0),
-            // Add other variants here...
-            _ => Err(rlp::DecoderError::Custom("Unknown variant")),
-        }
+impl Decodable for BlockVersion {
+    fn decode(r: &Rlp) -> Result<Self, DecoderError> {
+        let ver: u8 = r.val_at(0)?;
+        ver.try_into()
+            .map_err(|_| DecoderError::Custom("Invalid block version"))
     }
 }
 
@@ -291,27 +288,44 @@ pub struct AxonBlock {
 #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
 #[cfg_attr(feature = "impl-serde", derive(serde::Deserialize))]
 pub struct Proposal {
-    pub prev_hash:                H256,
+    pub version:                  BlockVersion,
+    pub prev_hash:                Hash,
     pub proposer:                 H160,
-    pub prev_state_root:          H256,
-    pub transactions_root:        H256,
-    pub signed_txs_hash:          H256,
+    pub prev_state_root:          MerkleRoot,
+    pub transactions_root:        MerkleRoot,
+    pub signed_txs_hash:          Hash,
+    #[cfg_attr(
+        feature = "impl-serde",
+        serde(deserialize_with = "decode::deserialize_hex_u64")
+    )]
     pub timestamp:                u64,
-    pub number:                   u64,
+    #[cfg_attr(
+        feature = "impl-serde",
+        serde(deserialize_with = "decode::deserialize_hex_u64")
+    )]
+    pub number:                   BlockNumber,
     pub gas_limit:                U256,
     pub extra_data:               Vec<ExtraData>,
-    // pub mixed_hash:               Option<H256>,
     pub base_fee_per_gas:         U256,
     pub proof:                    Proof,
+    #[cfg_attr(
+        feature = "impl-serde",
+        serde(deserialize_with = "decode::deserialize_hex_u64")
+    )]
     pub chain_id:                 u64,
+    #[cfg_attr(
+        feature = "impl-serde",
+        serde(deserialize_with = "decode::deserialize_hex_u32")
+    )]
     pub call_system_script_count: u32,
-    pub tx_hashes:                Vec<H256>,
+    pub tx_hashes:                Vec<Hash>,
 }
 
 #[cfg(feature = "impl-rlp")]
 impl Encodable for Proposal {
     fn rlp_append(&self, s: &mut RlpStream) {
-        s.begin_list(10)
+        s.begin_list(11)
+            .append(&self.version)
             .append(&self.prev_hash)
             .append(&self.proposer)
             .append(&self.prev_state_root)
@@ -365,21 +379,21 @@ pub struct Validator {
     pub vote_weight:    u32,
 }
 
-// #[cfg(feature = "proof")]
-// #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
-// impl core::cmp::PartialOrd for Validator {
-//     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
-//         Some(self.cmp(other))
-//     }
-// }
+#[cfg(feature = "proof")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
+impl core::cmp::PartialOrd for Validator {
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
 
-// #[cfg(feature = "proof")]
-// #[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
-// impl core::cmp::Ord for Validator {
-//     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
-//         self.address.cmp(&other.address)
-//     }
-// }
+#[cfg(feature = "proof")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "proof")))]
+impl core::cmp::Ord for Validator {
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
+        self.pub_key.cmp(&other.pub_key)
+    }
+}
 
 #[cfg(feature = "proof")]
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -476,11 +490,6 @@ pub struct ConsensusConfig {
         serde(deserialize_with = "decode::deserialize_hex_u64")
     )]
     pub gas_limit:       u64,
-    #[cfg_attr(
-        feature = "impl-serde",
-        serde(deserialize_with = "decode::deserialize_hex_u64")
-    )]
-    pub gas_price:       u64,
     #[cfg_attr(
         feature = "impl-serde",
         serde(deserialize_with = "decode::deserialize_hex_u64")
@@ -643,16 +652,20 @@ mod decode {
     // }
 
     pub fn from_hex(hex: &str) -> Result<Vec<u8>, &'static str> {
-        // if hex.len() % 2 != 0 {
-        //     let error_str = alloc::format!("Hex error: {:?}", hex);
-        //     return Err(error_str.as_str());
-        //     // return Err("Hex string has an odd length");
-        // }
+        // println!("from_hex hex: {:x?}", hex);
+        let mut bytes = Vec::with_capacity((hex.len() + 1) / 2);
 
-        let mut bytes = Vec::with_capacity(hex.len() / 2);
-        for i in (0..hex.len()).step_by(2) {
-            let end_i = if i + 2 >= hex.len() { i + 1 } else { i + 2 };
+        let mut start_i = 0;
+        if hex.len() % 2 != 0 {
+            let byte =
+                u8::from_str_radix(&hex[0..1], 16).map_err(|_| "Failed to parse hex string")?;
+            bytes.push(byte);
+            start_i = 1;
+        }
 
+        for i in (start_i..hex.len()).step_by(2) {
+            let end_i = if i + 2 > hex.len() { i + 1 } else { i + 2 };
+            // println!("i:{}, end_i: {}, byte: {:x?}", i, end_i, &hex[i..end_i]);
             let byte =
                 u8::from_str_radix(&hex[i..end_i], 16).map_err(|_| "Failed to parse hex string")?;
             bytes.push(byte);
@@ -683,19 +696,56 @@ mod decode {
     pub fn deserialize_hex_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
     where
         D: Deserializer<'de>,
-        // U: From<U256>,
     {
         let s = String::deserialize(deserializer)?;
+        // println!("deserialize s: {}", s);
         if s == "0x0" {
             return Ok(0);
         }
 
         if s.len() >= 2 && &s[0..2] == "0x" {
             let bytes = from_hex(&s[2..]).map_err(serde::de::Error::custom)?;
+            // println!("bytes: {:x?}", bytes);
             let val = U256::from_big_endian(&bytes);
+            // println!("val: {:?}", val);
             Ok(val.low_u64())
         } else {
             Err(serde::de::Error::custom("Invalid format"))
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        #[cfg(all(
+            feature = "hex",
+            feature = "proof",
+            feature = "impl-serde",
+            feature = "impl-rlp"
+        ))]
+        #[test]
+        fn test_deserialize_hex_u64() {
+            use crate::types::MetadataVersion;
+
+            {
+                let json_str = r#"{"start": "0x0", "end": "0x7"}"#;
+                let my_struct: MetadataVersion = serde_json::from_str(json_str).unwrap();
+                assert_eq!(my_struct.start, 0x0);
+                assert_eq!(my_struct.end, 0x7);
+            }
+
+            {
+                let json_str = r#"{"start": "0x12", "end": "0x233"}"#;
+                let my_struct: MetadataVersion = serde_json::from_str(json_str).unwrap();
+                assert_eq!(my_struct.start, 0x12);
+                assert_eq!(my_struct.end, 0x233);
+            }
+
+            {
+                let json_str = r#"{"start": "0x67fed12", "end": "0x8ddefa09"}"#;
+                let my_struct: MetadataVersion = serde_json::from_str(json_str).unwrap();
+                assert_eq!(my_struct.start, 0x67fed12);
+                assert_eq!(my_struct.end, 0x8ddefa09);
+            }
         }
     }
 }
