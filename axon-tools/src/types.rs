@@ -2,10 +2,10 @@ use std::cmp::Ordering;
 
 use alloc::vec::Vec;
 use bytes::{Bytes, BytesMut};
-use rlp::{Decodable, Rlp, DecoderError};
 use core::str::FromStr;
 use derive_more::{Display, From};
 use faster_hex::withpfx_lowercase;
+use rlp::{Decodable, DecoderError, Rlp};
 
 pub use ethereum_types::{Bloom, H160, H256, H64, U256};
 

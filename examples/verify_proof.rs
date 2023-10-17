@@ -1,7 +1,5 @@
 use axon_tools::hash::keccak_256;
-use axon_tools::types::{
-    AxonBlock, Metadata, Proof, Proposal, Validator, H256,
-};
+use axon_tools::types::{AxonBlock, Metadata, Proof, Proposal, Validator, ValidatorExtend, H256};
 use ethers_core::utils::rlp::Encodable;
 use serde::de::DeserializeOwned;
 
@@ -18,10 +16,10 @@ fn main() {
     let mut validators = metadata
         .verifier_list
         .iter()
-        .map(|v| Validator {
-            // bls_pub_key:    v.bls_pub_key,
-            pub_key:        v.pub_key.clone().into(),
-            // address:        v.address,
+        .map(|v| ValidatorExtend {
+            bls_pub_key:    v.bls_pub_key.clone(),
+            pub_key:        v.pub_key.clone(),
+            address:        v.address,
             propose_weight: v.propose_weight,
             vote_weight:    v.vote_weight,
         })
@@ -65,5 +63,4 @@ fn test_proposal() {
     println!("rlp_bytes: {:x?}", rlp_bytes);
     let hash = keccak_256(&rlp_bytes);
     println!("hash: {:x?}", hash);
-
 }

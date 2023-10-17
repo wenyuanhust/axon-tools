@@ -7,7 +7,7 @@ use bytes::Bytes;
 use ethereum_types::H256;
 use rlp::Encodable;
 
-use crate::types::{AxonBlock, Proof, Proposal, Validator, Vote};
+use crate::types::{AxonBlock, Proof, Proposal, ValidatorExtend, Vote};
 use crate::{error::Error, hash::InnerKeccak, keccak_256};
 
 const DST: &str = "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RONUL";
@@ -25,7 +25,7 @@ pub fn verify_trie_proof(
 pub fn verify_proof(
     block: AxonBlock,
     previous_state_root: H256,
-    validator_list: &mut [Validator],
+    validator_list: &mut [ValidatorExtend],
     proof: Proof,
 ) -> Result<(), Error> {
     let raw_proposal = Proposal {
@@ -74,7 +74,10 @@ pub fn verify_proof(
     Err(res.into())
 }
 
-fn extract_pks(proof: &Proof, validator_list: &mut [Validator]) -> Result<Vec<PublicKey>, Error> {
+fn extract_pks(
+    proof: &Proof,
+    validator_list: &mut [ValidatorExtend],
+) -> Result<Vec<PublicKey>, Error> {
     validator_list.sort();
 
     let bit_map = BitVec::from_bytes(&proof.bitmap);
@@ -86,8 +89,8 @@ fn extract_pks(proof: &Proof, validator_list: &mut [Validator]) -> Result<Vec<Pu
             continue;
         }
 
-        pks.push(PublicKey::from_bytes(&v.pub_key)?);
-        println!("------active key: {:?}", v.pub_key.to_vec());
+        pks.push(PublicKey::from_bytes(&v.bls_pub_key.as_bytes())?);
+        println!("------active key: {:?}", v.pub_key);
         count += 1;
     }
 
