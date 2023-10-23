@@ -1,6 +1,4 @@
-use axon_tools::hash::keccak_256;
-use axon_tools::types::{AxonBlock, Metadata, Proof, Proposal, Validator, ValidatorExtend, H256};
-use ethers_core::utils::rlp::Encodable;
+use axon_tools::types::{AxonBlock, Metadata, Proof, ValidatorExtend, H256};
 use serde::de::DeserializeOwned;
 
 fn read_json<T: DeserializeOwned>(path: &str) -> T {
@@ -39,28 +37,35 @@ fn main() {
     assert!(result.is_ok());
 }
 
-#[test]
-fn test_proposal() {
-    let proposal = Proposal {
-        version:                  Default::default(),
-        prev_hash:                Default::default(),
-        proposer:                 Default::default(),
-        prev_state_root:          Default::default(),
-        transactions_root:        Default::default(),
-        signed_txs_hash:          Default::default(),
-        timestamp:                0,
-        number:                   100,
-        gas_limit:                Default::default(),
-        extra_data:               Default::default(),
-        base_fee_per_gas:         Default::default(),
-        proof:                    Proof::default(),
-        chain_id:                 1000 as u64,
-        call_system_script_count: 1,
-        tx_hashes:                vec![],
-    };
+#[cfg(test)]
+mod tests {
+    use axon_tools::hash::keccak_256;
+    use axon_tools::types::{Proof, Proposal};
+    use ethers_core::utils::rlp::Encodable;
 
-    let rlp_bytes = proposal.rlp_bytes();
-    println!("rlp_bytes: {:x?}", rlp_bytes);
-    let hash = keccak_256(&rlp_bytes);
-    println!("hash: {:x?}", hash);
+    #[test]
+    fn test_proposal() {
+        let proposal = Proposal {
+            version:                  Default::default(),
+            prev_hash:                Default::default(),
+            proposer:                 Default::default(),
+            prev_state_root:          Default::default(),
+            transactions_root:        Default::default(),
+            signed_txs_hash:          Default::default(),
+            timestamp:                0,
+            number:                   100,
+            gas_limit:                Default::default(),
+            extra_data:               Default::default(),
+            base_fee_per_gas:         Default::default(),
+            proof:                    Proof::default(),
+            chain_id:                 1000 as u64,
+            call_system_script_count: 1,
+            tx_hashes:                vec![],
+        };
+
+        let rlp_bytes = proposal.rlp_bytes();
+        println!("rlp_bytes: {:x?}", rlp_bytes);
+        let hash = keccak_256(&rlp_bytes);
+        println!("hash: {:x?}", hash);
+    }
 }
