@@ -4,7 +4,7 @@ extern crate alloc;
 
 mod error;
 #[cfg(feature = "hash")]
-mod hash;
+pub mod hash;
 #[cfg(feature = "hex")]
 #[cfg_attr(doc_cfg, doc(cfg(feature = "hex")))]
 pub mod hex;

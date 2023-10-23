@@ -1,4 +1,4 @@
-use alloc::string::{String, ToString};
+use std::fmt::{self, Display};
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -6,6 +6,7 @@ pub enum Error {
     InvalidProofBlockHash,
     NotEnoughSignatures,
     VerifyMptProof,
+    HexPrefix,
 
     #[cfg(feature = "hex")]
     #[cfg_attr(doc_cfg, doc(cfg(feature = "hex")))]
@@ -44,18 +45,19 @@ impl From<cita_trie::TrieError> for Error {
     }
 }
 
-impl ToString for Error {
-    fn to_string(&self) -> String {
+impl Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Error::InvalidProofBlockHash => "Invalid proof block hash".to_string(),
-            Error::NotEnoughSignatures => "Not enough signatures".to_string(),
-            Error::VerifyMptProof => "Verify mpt proof".to_string(),
+            Error::InvalidProofBlockHash => write!(f, "Invalid proof block hash"),
+            Error::NotEnoughSignatures => write!(f, "Not enough signatures"),
+            Error::VerifyMptProof => write!(f, "Verify mpt proof"),
+            Error::HexPrefix => write!(f, "Hex prefix"),
             #[cfg(feature = "hex")]
-            Error::Hex(e) => alloc::format!("Hex error: {:?}", e),
+            Error::Hex(e) => write!(f, "Hex error: {:?}", e),
             #[cfg(feature = "proof")]
-            Error::Bls(e) => alloc::format!("Bls error: {:?}", e),
+            Error::Bls(e) => write!(f, "Bls error: {:?}", e),
             #[cfg(feature = "proof")]
-            Error::Trie(e) => alloc::format!("Trie error: {:?}", e),
+            Error::Trie(e) => write!(f, "Trie error: {:?}", e),
         }
     }
 }

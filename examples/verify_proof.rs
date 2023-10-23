@@ -1,4 +1,4 @@
-use axon_tools::types::{AxonBlock, Metadata, Proof, Validator, H256};
+use axon_tools::types::{AxonBlock, Metadata, Proof, ValidatorExtend, H256};
 use serde::de::DeserializeOwned;
 
 fn read_json<T: DeserializeOwned>(path: &str) -> T {
@@ -7,14 +7,16 @@ fn read_json<T: DeserializeOwned>(path: &str) -> T {
 }
 
 fn main() {
-    let block: AxonBlock = read_json("examples/block.json");
+    let block: AxonBlock = read_json("examples/block1.json");
+    println!("block: {:?}", block);
     let proof: Proof = read_json("examples/proof.json");
     let metadata: Metadata = read_json("examples/metadata.json");
     let mut validators = metadata
         .verifier_list
         .iter()
-        .map(|v| Validator {
+        .map(|v| ValidatorExtend {
             bls_pub_key:    v.bls_pub_key.clone(),
+            pub_key:        v.pub_key.clone(),
             address:        v.address,
             propose_weight: v.propose_weight,
             vote_weight:    v.vote_weight,
@@ -22,13 +24,55 @@ fn main() {
         .collect::<Vec<_>>();
 
     let previous_state_root =
-        hex::decode("3ae76798c8eaaf3005455c254b7ca499b0de32cf5fdf0d42e967059806d93a37").unwrap();
+        hex::decode("0000000000000000000000000000000000000000000000000000000000000000").unwrap();
 
-    assert!(axon_tools::verify_proof(
+    let result = axon_tools::verify_proof(
         block,
         H256::from_slice(&previous_state_root),
         &mut validators,
         proof,
-    )
-    .is_ok());
+    );
+    println!("verify_proof: {:?}", result);
+
+    assert!(result.is_ok());
+}
+
+#[cfg(test)]
+mod tests {
+    use axon_tools::hash::keccak_256;
+    use axon_tools::types::{BlockVersion, Proof, Proposal, H160, H256, U256};
+    use bytes::Bytes;
+    use ethers_core::utils::rlp::Encodable;
+
+    #[test]
+    fn test_proposal() {
+        let proposal = Proposal {
+            version:                  BlockVersion::V0,
+            prev_hash:                H256::from([1u8; 32]),
+            proposer:                 H160::from([2u8; 20]),
+            prev_state_root:          H256::from([3u8; 32]),
+            transactions_root:        H256::from([4u8; 32]),
+            signed_txs_hash:          H256::from([5u8; 32]),
+            timestamp:                0,
+            number:                   100,
+            gas_limit:                U256::from(6),
+            extra_data:               Vec::new(),
+            base_fee_per_gas:         U256::from(7),
+            proof:                    Proof {
+                number:     0,
+                round:      1,
+                block_hash: H256::from([1u8; 32]),
+                signature:  Bytes::from("1234"),
+                bitmap:     Bytes::from("abcd"),
+            },
+            chain_id:                 1000 as u64,
+            call_system_script_count: 1,
+            tx_hashes:                vec![],
+        };
+
+        let rlp_bytes = proposal.rlp_bytes();
+        println!("rlp_bytes: {:x?}", rlp_bytes);
+        let hash = keccak_256(&rlp_bytes);
+        println!("hash: {:x?}", hash);
+    }
 }
