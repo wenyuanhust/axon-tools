@@ -40,24 +40,31 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use axon_tools::hash::keccak_256;
-    use axon_tools::types::{Proof, Proposal};
+    use axon_tools::types::{BlockVersion, Proof, Proposal, H160, H256, U256};
+    use bytes::Bytes;
     use ethers_core::utils::rlp::Encodable;
 
     #[test]
     fn test_proposal() {
         let proposal = Proposal {
-            version:                  Default::default(),
-            prev_hash:                Default::default(),
-            proposer:                 Default::default(),
-            prev_state_root:          Default::default(),
-            transactions_root:        Default::default(),
-            signed_txs_hash:          Default::default(),
+            version:                  BlockVersion::V0,
+            prev_hash:                H256::from([1u8; 32]),
+            proposer:                 H160::from([2u8; 20]),
+            prev_state_root:          H256::from([3u8; 32]),
+            transactions_root:        H256::from([4u8; 32]),
+            signed_txs_hash:          H256::from([5u8; 32]),
             timestamp:                0,
             number:                   100,
-            gas_limit:                Default::default(),
-            extra_data:               Default::default(),
-            base_fee_per_gas:         Default::default(),
-            proof:                    Proof::default(),
+            gas_limit:                U256::from(6),
+            extra_data:               Vec::new(),
+            base_fee_per_gas:         U256::from(7),
+            proof:                    Proof {
+                number:     0,
+                round:      1,
+                block_hash: H256::from([1u8; 32]),
+                signature:  Bytes::from("1234"),
+                bitmap:     Bytes::from("abcd"),
+            },
             chain_id:                 1000 as u64,
             call_system_script_count: 1,
             tx_hashes:                vec![],

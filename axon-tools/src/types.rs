@@ -324,7 +324,7 @@ pub struct Proposal {
 #[cfg(feature = "impl-rlp")]
 impl Encodable for Proposal {
     fn rlp_append(&self, s: &mut RlpStream) {
-        s.begin_list(11)
+        s.begin_list(13)
             .append(&self.version)
             .append(&self.prev_hash)
             .append(&self.proposer)
@@ -333,6 +333,8 @@ impl Encodable for Proposal {
             .append(&self.signed_txs_hash)
             .append(&self.timestamp)
             .append(&self.number)
+            .append(&self.gas_limit.as_u64())
+            .append_list(&self.extra_data)
             .append(&self.proof)
             .append(&self.call_system_script_count)
             .append_list(&self.tx_hashes);

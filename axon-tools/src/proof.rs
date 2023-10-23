@@ -57,14 +57,12 @@ pub fn verify_proof(
         vote_type:  2u8,
         block_hash: Bytes::from(proof.block_hash.0.to_vec()),
     };
-    println!("-------message: {:?}", rlp::encode(&vote).to_vec());
 
     let hash_vote = keccak_256(rlp::encode(&vote).as_ref());
     let pks = extract_pks(&proof, validator_list)?;
     let pks = pks.iter().collect::<Vec<_>>();
     let c_pk = PublicKey::from_aggregate(&AggregatePublicKey::aggregate(&pks, true)?);
     let sig = Signature::from_bytes(&proof.signature)?;
-    println!("--------signature: {:?}", proof.signature.to_vec());
     let res = sig.verify(true, &hash_vote, DST.as_bytes(), &[], &c_pk, true);
 
     if res == BLST_ERROR::BLST_SUCCESS {
@@ -90,7 +88,6 @@ fn extract_pks(
         }
 
         pks.push(PublicKey::from_bytes(&v.bls_pub_key.as_bytes())?);
-        println!("------active key: {:?}", v.pub_key);
         count += 1;
     }
 

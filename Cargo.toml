@@ -12,10 +12,14 @@ members = [
 [dependencies]
 axon-tools = { path = "./axon-tools", features = ["impl-serde", "proof"] }
 ethers-core = "2.0.10"
-# eth_light_client_in_ckb-verification = { version = "0.2.1", git = "https://github.com/synapseweb3/eth-light-client-in-ckb", tag = "v0.2.1" }
 eth_light_client_in_ckb-prover = { version = "0.2.1", git = "https://github.com/synapseweb3/eth-light-client-in-ckb", tag = "v0.2.1" }
 
 [dev-dependencies]
 serde = "1.0"
 serde_json = "1.0"
 hex = "0.4"
+
+[dependencies.bytes]
+version = "1.4"
+default-features = false
+features = ["serde"]
