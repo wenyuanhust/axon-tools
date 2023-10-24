@@ -564,13 +564,13 @@ pub struct ValidatorExtend {
 
 impl PartialOrd for ValidatorExtend {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.bls_pub_key.cmp(&other.bls_pub_key))
+        Some(self.cmp(&other))
     }
 }
 
 impl Ord for ValidatorExtend {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.bls_pub_key.cmp(&other.bls_pub_key)
+        self.address.cmp(&other.address)
     }
 }
 
