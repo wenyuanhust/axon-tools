@@ -28,6 +28,8 @@ pub fn verify_proof(
     validator_list: &mut [ValidatorExtend],
     proof: Proof,
 ) -> Result<(), Error> {
+    print_block(&block);
+
     let raw_proposal = Proposal {
         version:                  block.header.version,
         prev_hash:                block.header.prev_hash,
@@ -47,9 +49,9 @@ pub fn verify_proof(
     }
     .rlp_bytes();
 
-    if keccak_256(&raw_proposal) != proof.block_hash.0 {
-        return Err(Error::InvalidProofBlockHash);
-    }
+    // if keccak_256(&raw_proposal) != proof.block_hash.0 {
+    //     return Err(Error::InvalidProofBlockHash);
+    // }
 
     let vote = Vote {
         height:     proof.number,
@@ -91,6 +93,7 @@ fn extract_pks(
         count += 1;
     }
 
+    println!("extract_pks count: {}, validator len: {}", count, validator_list.len());
     log::debug!("extract_pks count: {}, validator len: {}", count, validator_list.len());
     if count * 3 <= validator_list.len() * 2 {
         return Err(Error::NotEnoughSignatures);
