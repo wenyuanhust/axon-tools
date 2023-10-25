@@ -218,11 +218,14 @@ pub type BlockNumber = u64;
     feature = "impl-rlp",
     derive(rlp_derive::RlpEncodable, rlp_derive::RlpDecodable)
 )]
-#[cfg_attr(feature = "impl-serde", derive(serde::Deserialize))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ExtraData {
     #[cfg_attr(
         feature = "impl-serde",
-        serde(deserialize_with = "withpfx_lowercase::deserialize")
+        serde(
+            serialize_with = "withpfx_lowercase::serialize",
+            deserialize_with = "withpfx_lowercase::deserialize"
+        )
     )]
     pub inner: Bytes,
 }
@@ -232,7 +235,7 @@ pub struct ExtraData {
     feature = "impl-rlp",
     derive(rlp_derive::RlpEncodable, rlp_derive::RlpDecodable)
 )]
-#[cfg_attr(feature = "impl-serde", derive(serde::Deserialize))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AxonHeader {
     pub version:                  BlockVersion,
     pub prev_hash:                Hash,
@@ -244,12 +247,18 @@ pub struct AxonHeader {
     pub log_bloom:                Bloom,
     #[cfg_attr(
         feature = "impl-serde",
-        serde(deserialize_with = "decode::deserialize_hex_u64")
+        serde(
+            serialize_with = "encode::serialize_uint",
+            deserialize_with = "decode::deserialize_hex_u64"
+        )
     )]
     pub timestamp:                u64,
     #[cfg_attr(
         feature = "impl-serde",
-        serde(deserialize_with = "decode::deserialize_hex_u64")
+        serde(
+            serialize_with = "encode::serialize_uint",
+            deserialize_with = "decode::deserialize_hex_u64"
+        )
     )]
     pub number:                   BlockNumber,
     pub gas_used:                 U256,
@@ -262,12 +271,18 @@ pub struct AxonHeader {
     pub proof:                    Proof,
     #[cfg_attr(
         feature = "impl-serde",
-        serde(deserialize_with = "decode::deserialize_hex_u32")
+        serde(
+            serialize_with = "encode::serialize_uint",
+            deserialize_with = "decode::deserialize_hex_u32"
+        )
     )]
     pub call_system_script_count: u32,
     #[cfg_attr(
         feature = "impl-serde",
-        serde(deserialize_with = "decode::deserialize_hex_u64")
+        serde(
+            serialize_with = "encode::serialize_uint",
+            deserialize_with = "decode::deserialize_hex_u64"
+        )
     )]
     pub chain_id:                 u64,
 }
@@ -277,7 +292,7 @@ pub struct AxonHeader {
     feature = "impl-rlp",
     derive(rlp_derive::RlpEncodable, rlp_derive::RlpDecodable)
 )]
-#[cfg_attr(feature = "impl-serde", derive(serde::Deserialize))]
+#[cfg_attr(feature = "impl-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AxonBlock {
     pub header:    AxonHeader,
     pub tx_hashes: Vec<H256>,
@@ -350,23 +365,35 @@ impl Encodable for Proposal {
 pub struct Proof {
     #[cfg_attr(
         feature = "impl-serde",
-        serde(deserialize_with = "decode::deserialize_hex_u64")
+        serde(
+            serialize_with = "encode::serialize_uint",
+            deserialize_with = "decode::deserialize_hex_u64"
+        )
     )]
     pub number:     u64,
     #[cfg_attr(
         feature = "impl-serde",
-        serde(deserialize_with = "decode::deserialize_hex_u64")
+        serde(
+            serialize_with = "encode::serialize_uint",
+            deserialize_with = "decode::deserialize_hex_u64"
+        )
     )]
     pub round:      u64,
     pub block_hash: Hash,
     #[cfg_attr(
         feature = "impl-serde",
-        serde(deserialize_with = "withpfx_lowercase::deserialize")
+        serde(
+            serialize_with = "withpfx_lowercase::serialize",
+            deserialize_with = "withpfx_lowercase::deserialize"
+        )
     )]
     pub signature:  Bytes,
     #[cfg_attr(
         feature = "impl-serde",
-        serde(deserialize_with = "withpfx_lowercase::deserialize")
+        serde(
+            serialize_with = "withpfx_lowercase::serialize",
+            deserialize_with = "withpfx_lowercase::deserialize"
+        )
     )]
     pub bitmap:     Bytes,
 }
@@ -617,6 +644,57 @@ pub struct CkbRelatedInfo {
     pub stake_smt_type_id:    H256,
     pub delegate_smt_type_id: H256,
     pub reward_smt_type_id:   H256,
+}
+
+#[cfg(feature = "impl-serde")]
+mod encode {
+    use ethereum_types::U256;
+    use serde::ser::Serializer;
+    static CHARS: &[u8] = b"0123456789abcdef";
+
+    fn to_hex_raw<'a>(v: &'a mut [u8], bytes: &[u8], skip_leading_zero: bool) -> &'a str {
+        debug_assert!(v.len() > 1 + bytes.len() * 2);
+
+        v[0] = b'0';
+        v[1] = b'x';
+
+        let mut idx = 2;
+        let first_nibble = bytes[0] >> 4;
+        if first_nibble != 0 || !skip_leading_zero {
+            v[idx] = CHARS[first_nibble as usize];
+            idx += 1;
+        }
+        v[idx] = CHARS[(bytes[0] & 0xf) as usize];
+        idx += 1;
+
+        for &byte in bytes.iter().skip(1) {
+            v[idx] = CHARS[(byte >> 4) as usize];
+            v[idx + 1] = CHARS[(byte & 0xf) as usize];
+            idx += 2;
+        }
+
+        // SAFETY: all characters come either from CHARS or "0x", therefore valid UTF8
+        unsafe { std::str::from_utf8_unchecked(&v[0..idx]) }
+    }
+
+    pub fn serialize_uint<S, U>(val: &U, s: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+        U: Into<U256> + Copy,
+    {
+        let val: U256 = (*val).into();
+        let mut slice = [0u8; 2 + 64];
+        let mut bytes = [0u8; 32];
+        val.to_big_endian(&mut bytes);
+        let non_zero = bytes.iter().take_while(|b| **b == 0).count();
+        let bytes = &bytes[non_zero..];
+
+        if bytes.is_empty() {
+            s.serialize_str("0x0")
+        } else {
+            s.serialize_str(to_hex_raw(&mut slice, bytes, true))
+        }
+    }
 }
 
 #[cfg(feature = "impl-serde")]

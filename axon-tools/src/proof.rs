@@ -91,7 +91,11 @@ fn extract_pks(
         count += 1;
     }
 
-    log::debug!("extract_pks count: {}, validator len: {}", count, validator_list.len());
+    log::debug!(
+        "extract_pks count: {}, validator len: {}",
+        count,
+        validator_list.len()
+    );
     if count * 3 <= validator_list.len() * 2 {
         return Err(Error::NotEnoughSignatures);
     }
