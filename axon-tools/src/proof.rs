@@ -98,3 +98,7 @@ fn extract_pks(
 
     Ok(pks)
 }
+
+pub fn print_block(block: &AxonBlock) {
+    println!("json: {:x?}", serde_json::to_string(block).unwrap());
+}
