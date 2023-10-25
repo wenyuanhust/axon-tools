@@ -18,7 +18,7 @@ pub fn verify_trie_proof(
     proof: Vec<Vec<u8>>,
 ) -> Result<Option<Vec<u8>>, Error> {
     let value = cita_trie::verify_proof(&root.0, key, proof, InnerKeccak::default())?;
-    println!("key: {:?}, value: {:?}", key, value);
+    log::debug!("key: {:?}, value: {:?}", key, value);
     Ok(value)
 }
 
@@ -91,6 +91,11 @@ fn extract_pks(
         count += 1;
     }
 
+    log::debug!(
+        "extract_pks count: {}, validator len: {}",
+        count,
+        validator_list.len()
+    );
     if count * 3 <= validator_list.len() * 2 {
         return Err(Error::NotEnoughSignatures);
     }

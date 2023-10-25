@@ -7,7 +7,7 @@ fn read_json<T: DeserializeOwned>(path: &str) -> T {
 }
 
 fn main() {
-    let block: AxonBlock = read_json("examples/block1.json");
+    let block: AxonBlock = read_json("examples/block.json");
     println!("block: {:?}", block);
     let proof: Proof = read_json("examples/proof.json");
     let metadata: Metadata = read_json("examples/metadata.json");
@@ -24,7 +24,7 @@ fn main() {
         .collect::<Vec<_>>();
 
     let previous_state_root =
-        hex::decode("0000000000000000000000000000000000000000000000000000000000000000").unwrap();
+        hex::decode("9fc948be2cfb0127e979dc9c7e6d2f4a2890b54e0e81fd69c687303e6b25ddde").unwrap();
 
     let result = axon_tools::verify_proof(
         block,
